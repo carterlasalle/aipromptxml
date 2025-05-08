@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Claude Prompt XML Helper</title>
+<style>
+  body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; margin: 0; padding: 0; background: #f0f2f5; color: #343a40; }
+  .page-container { display: flex; max-width: 1300px; margin: 30px auto; background: #f8f9fa; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+  #sidebar { width: 220px; background: #e9ecef; padding: 20px; border-right: 1px solid #dee2e6; border-radius: 8px 0 0 8px; }
+  #sidebar h2 { font-size: 18px; margin-top: 0; margin-bottom: 15px; color: #007bff; }
+  #sidebar ul { list-style: none; padding: 0; margin: 0; }
+  #sidebar li { background: #fff; color: #007bff; border: 1px solid #007bff; padding: 8px 12px; margin-bottom: 8px; border-radius: 4px; cursor: pointer; transition: background-color 0.2s, color 0.2s; font-size: 14px; }
+  #sidebar li:hover { background: #007bff; color: #fff; }
+
+  #main-content { flex-grow: 1; padding: 20px 30px; }
+  h1 { font-size: 26px; margin-top:0; margin-bottom: 20px; color: #2c3e50; text-align: center; }
+  .btn { padding: 10px 20px; font-size: 15px; cursor: pointer; margin: 8px 8px 8px 0; border: none; border-radius: 5px; background: #007bff; color: #fff; transition: background-color 0.2s ease; }
+  .btn:hover { background: #0056b3; }
+  .btn.secondary { background: #6c757d; }
+  .btn.secondary:hover { background: #545b62; }
+  .btn.danger { background: #dc3545; }
+  .btn.danger:hover { background: #b02a37; }
+  #elementsContainer { margin-bottom: 25px; }
+  .element-group { background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 20px; margin-bottom: 20px; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  .element-group label { font-weight: 600; display: block; margin: 8px 0 4px; color: #495057; }
+  .element-group input[type="text"], .element-group textarea { width: 100%; box-sizing: border-box; padding: 10px; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 14px; border: 1px solid #ced4da; border-radius: 4px; }
+  .element-group textarea { min-height: 100px; resize: vertical; }
+  .remove-btn { position: absolute; top: 12px; right: 12px; background: #e74c3c; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 16px; line-height: 28px; text-align: center; cursor: pointer; }
+  .remove-btn:hover { background: #c0392b; }
+  #output-area { margin-top: 20px; }
+  #output { white-space: pre-wrap; background: #282c34; color: #abb2bf; border: 1px solid #2c313a; padding: 20px; border-radius: 6px; min-height: 180px; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 14px; }
+  .controls, .output-controls { margin-bottom: 20px; display: flex; flex-wrap: wrap; align-items: center; }
+  .config-item { margin-right: 15px; margin-bottom: 10px; }
+  .config-item label { margin-right: 5px; font-weight: 500; }
+  .config-item input[type="text"] { padding: 8px; border-radius: 4px; border: 1px solid #ced4da; }
+  .guidance { background: #e0e7ff; border: 1px solid #c0cfff; padding: 15px; border-radius: 6px; margin-bottom: 25px; font-size: 14px; line-height: 1.6; }
+  .guidance h2 { font-size: 18px; margin-top: 0; margin-bottom: 10px; color: #0056b3;}
+  .guidance ul { padding-left: 20px; margin-bottom: 0; }
+  .guidance code { background: #c0cfff; color: #303f9f; padding: 2px 5px; border-radius: 3px; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;}
+</style>
+</head>
+<body>
+
+<div class="page-container">
+  <div id="sidebar">
+    <h2>Recommended Tags</h2>
+    <ul id="recommendedTagsList">
+      <!-- Tags will be populated by JS -->
+    </ul>
+  </div>
+
+  <div id="main-content">
+    <h1>Claude Prompt XML Helper</h1>
+
+    <div class="guidance">
+      <h2>Claude XML Prompting Tips</h2>
+      <ul>
+        <li>Use XML tags to clearly structure different parts of your prompt (e.g., <code>&lt;instructions&gt;</code>, <code>&lt;context&gt;</code>, <code>&lt;example&gt;</code>).</li>
+        <li>Choose descriptive tag names (e.g., <code>&lt;document&gt;</code>, <code>&lt;user_query&gt;</code>, <code>&lt;persona&gt;</code>).</li>
+        <li>Be consistent with your tag names.</li>
+        <li>You can nest tags manually within the "Element Content" if needed. The CDATA section will preserve your structure.</li>
+        <li>Content within <code>&lt;![CDATA[...]]&gt;</code> is treated as raw text, preserving special characters like <code>&lt;</code>, <code>&gt;</code>, and <code>&amp;</code>.</li>
+    </div>
+
+    <div class="controls">
+      <div class="config-item">
+        <label for="rootTag">Root Tag Name (optional):</label>
+        <input type="text" id="rootTag" value="prompt_structure" placeholder="e.g., prompt_structure">
+      </div>
+      <button id="addElementBtnManual" class="btn">Add Custom Element</button>
+    </div>
+
+    <div id="elementsContainer"></div>
+
+    <datalist id="commonClaudeTagsDatalist">
+      <!-- Options will be populated by JS -->
+    </datalist>
+
+    <div class="output-controls">
+      <button id="generateBtn" class="btn">Generate Prompt XML</button>
+      <button id="copyBtn" class="btn secondary">Copy XML</button>
+      <button id="downloadBtn" class="btn secondary">Download XML</button>
+    </div>
+
+    <div id="output-area">
+      <label for="output" style="font-weight:600; display:block; margin-bottom:5px;">Generated XML:</label>
+      <pre id="output"></pre>
+    </div>
+  </div>
+</div>
+
+<script>
+let elementCounter = 0;
+const elementsContainer = document.getElementById('elementsContainer');
+const recommendedTagsList = document.getElementById('recommendedTagsList');
+const commonClaudeTagsDatalist = document.getElementById('commonClaudeTagsDatalist');
+
+const claudeTags = [
+  "instructions", "context", "document", "example", "examples",
+  "user_query", "data", "formatting", "formatting_example", "persona",
+  "constraints", "input_text", "output_format", "thinking", "answer",
+  "tool_inputs", "system_message", "question", "reference_material", "previous_conversation", "style_guide"
+];
+
+// Populate Sidebar and Datalist
+claudeTags.forEach(tag => {
+  // Sidebar
+  const listItem = document.createElement('li');
+  listItem.textContent = `<${tag}>`;
+  listItem.setAttribute('data-tag', tag);
+  listItem.onclick = () => addElement(tag, true); // Pass tag and focus content
+  recommendedTagsList.appendChild(listItem);
+
+  // Datalist
+  const option = document.createElement('option');
+  option.value = tag;
+  commonClaudeTagsDatalist.appendChild(option);
+});
+
+// Initial element (optional, can be removed if sidebar is primary way)
+// addElement("instructions", false); // Default first element
+
+document.getElementById('addElementBtnManual').onclick = () => addElement(null, false); // Add empty, focus name
+document.getElementById('generateBtn').onclick = generatePromptXML;
+document.getElementById('copyBtn').onclick = copyXML;
+document.getElementById('downloadBtn').onclick = downloadXML;
+
+function addElement(tagName = null, focusContent = false){
+  elementCounter++;
+  const div = document.createElement('div');
+  div.className = 'element-group';
+  div.innerHTML = `
+    <button class="remove-btn" title="Remove Element" onclick="this.parentElement.remove()">×</button>
+    <label for="elementName${elementCounter}">Element Name:</label>
+    <input type="text" id="elementName${elementCounter}" class="element-name" list="commonClaudeTagsDatalist" placeholder="e.g., instructions" value="${tagName || ''}">
+    <label for="elementContent${elementCounter}">Element Content:</label>
+    <textarea id="elementContent${elementCounter}" class="element-content" placeholder="Enter content for this element. You can include newlines and special characters.
+If you need nested XML, type it here directly. E.g.:
+<example_group>
+  <example_input>Input A</example_input>
+  <example_output>Output A</example_output>
+</example_group>"></textarea>`;
+  elementsContainer.appendChild(div);
+
+  if (focusContent && tagName) {
+    div.querySelector('.element-content').focus();
+  } else {
+    div.querySelector('.element-name').focus();
+  }
+  return div; // Return the created element group
+}
+
+function escapeCDATA(str){
+  return str.replace(/]]>/g, ']]]]><![CDATA[>');
+}
+
+function generatePromptXML(){
+  const rootTagName = document.getElementById('rootTag').value.trim();
+  const elementNames = Array.from(document.querySelectorAll('.element-name'));
+  const contents = Array.from(document.querySelectorAll('.element-content'));
+  let xml = '';
+  let hasContent = false;
+
+  let bodyXml = '';
+  elementNames.forEach((input, idx)=>{
+    const tagName = input.value.trim();
+    if(tagName){
+      hasContent = true;
+      const content = contents[idx].value;
+      const cdataContent = escapeCDATA(content);
+      const indent = rootTagName ? '  ' : '';
+      bodyXml += `${indent}<${tagName}>\n${indent}  <![CDATA[\n${cdataContent}\n${indent}  ]]>\n${indent}</${tagName}>\n`;
+    }
+  });
+
+  if (!hasContent && !rootTagName) {
+      document.getElementById('output').textContent = 'Please add at least one element or specify a root tag to generate XML.';
+      return;
+  }
+  
+  if (rootTagName) {
+    xml = `<${rootTagName}>\n`;
+    xml += bodyXml;
+    xml += `</${rootTagName}>`;
+  } else if (hasContent) { // Only set bodyXml if there are elements and no root tag
+    xml = bodyXml.trim(); 
+  } else { // No root tag and no content
+    xml = ''; // Or a message like "No content to generate"
+  }
+
+
+  document.getElementById('output').textContent = xml;
+}
+
+function copyXML(){
+  const text = document.getElementById('output').textContent;
+  if(!text || text.startsWith('Please add')) {
+    alert('Nothing to copy. Generate XML first.');
+    return;
+  }
+  navigator.clipboard.writeText(text)
+    .then(()=> alert('Prompt XML copied to clipboard.'))
+    .catch(err => console.error('Failed to copy: ', err));
+}
+
+function downloadXML(){
+  const text = document.getElementById('output').textContent;
+  if(!text || text.startsWith('Please add')) {
+    alert('Nothing to download. Generate XML first.');
+    return;
+  }
+  const blob = new Blob([text], {type:'application/xml;charset=utf-8'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = (document.getElementById('rootTag').value.trim() || 'claude_prompt_elements') + '.xml';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Optionally add a default first element if no elements exist
+if (elementsContainer.children.length === 0) {
+    addElement("instructions", false); // Add 'instructions' tag and focus its name input
+}
+
+</script>
+</body>
+</html>
