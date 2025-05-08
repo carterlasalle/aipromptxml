@@ -1,5 +1,7 @@
 # Claude Prompt XML Helper
 
+[Try it out!](xmlprompt.carterlasalle.com)
+
 This is a simple HTML and JavaScript-based web tool designed to help you construct well-structured XML prompts for interacting with Anthropic's Claude AI models.
 
 Following Claude's best practices for prompt engineering, using XML tags can significantly improve the clarity, accuracy, and parseability of your prompts and Claude's responses. This tool provides a user-friendly interface to dynamically build these XML structures.
