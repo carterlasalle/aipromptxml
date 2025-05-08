@@ -1,6 +1,6 @@
 # Claude Prompt XML Helper
 
-[Try it out!](xmlprompt.carterlasalle.com)
+[Try it out!](https://xmlprompt.carterlasalle.com)
 
 This is a simple HTML and JavaScript-based web tool designed to help you construct well-structured XML prompts for interacting with Anthropic's Claude AI models.
 
