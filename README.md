@@ -1,99 +1,85 @@
-# Claude Prompt XML Helper
+# Prompt XML Studio
 
-[Try it out!](https://xmlprompt.carterlasalle.com)
+A private, local-first editor for turning unstructured prompts into clean XML documents. It is the modern replacement for the original two-file **Claude Prompt XML Helper**.
 
-This is a simple HTML and JavaScript-based web tool designed to help you construct well-structured XML prompts for interacting with Anthropic's Claude AI models.
+**Live app:** [xmlprompt.carterlasalle.com](https://xmlprompt.carterlasalle.com)
 
-Following Claude's best practices for prompt engineering, using XML tags can significantly improve the clarity, accuracy, and parseability of your prompts and Claude's responses. This tool provides a user-friendly interface to dynamically build these XML structures.
+## What changed in 2.0
 
-## Features
+- Rebuilt the interface as a responsive three-panel workspace.
+- Added live XML generation and validation instead of a manual generate step.
+- Added prompt templates for general prompting, summarization, extraction, code review, and research synthesis.
+- Added drag-and-drop and keyboard-accessible section ordering.
+- Added CDATA and escaped-text output modes, indentation controls, optional XML declarations, and fragment output.
+- Added local persistence, dark mode, keyboard shortcuts, clipboard fallback, and safer downloads.
+- Removed alerts, inline scripts, external assets, analytics, and all network requests.
+- Added a tested generation engine, static integrity checks, and GitHub Actions CI.
+- Added a real MIT license and installable web-app metadata.
 
-*   **Dynamic Element Creation:** Easily add or remove XML elements for different parts of your prompt.
-*   **Recommended Tags Sidebar:** Quickly add common and recommended Claude tags (e.g., `<instructions>`, `<context>`, `<document>`, `<example>`) with a single click.
-*   **Custom Tag Names:** Flexibility to use any tag name you need, with autocomplete suggestions for common tags.
-*   **CDATA Sections:** Automatically wraps element content in `<![CDATA[...]]>` sections.
-    *   This ensures that any special characters (like `<`, `>`, `&`) or even nested XML-like structures within your content are treated as literal text and do not break the main XML prompt structure.
-    *   Properly escapes `]]>` within CDATA content if it occurs.
-*   **Optional Root Tag:** Define a main root tag for your entire prompt structure (e.g., `<prompt_structure>`) or generate a sequence of elements without one.
-*   **Real-time XML Generation:** See the generated XML output instantly as you build your prompt.
-*   **Copy to Clipboard:** Easily copy the generated XML.
-*   **Download XML:** Download the prompt as an `.xml` file.
-*   **Claude Prompting Tips:** Includes a handy reference section with best practices for using XML with Claude.
-*   **Client-Side:** Runs entirely in your browser. No data is sent to any server.
+## Privacy model
 
-## Why Use XML for Claude Prompts?
+The app runs entirely in the browser. Prompt content is stored only in `localStorage` on the current device. There are no API calls, analytics requests, accounts, cookies, or server-side prompt storage.
 
-Anthropic recommends using XML tags to structure complex prompts because:
+## Run locally
 
-*   **Clarity:** Clearly demarcates different sections of your prompt (e.g., instructions, context, examples, user queries).
-*   **Accuracy:** Helps Claude better understand the distinct roles of different pieces of information, reducing misinterpretations.
-*   **Flexibility:** Makes it easier to add, remove, or modify parts of your prompt.
-*   **Parseability:** If you instruct Claude to use XML tags in its output, it makes post-processing and extracting specific information from the response much simpler.
+This project uses Yarn and requires Node.js 22 or newer.
 
-## How to Use
+```bash
+corepack enable
+yarn dev
+```
 
-1.  **Open `index.html`:** Simply open the `index.html` file in any modern web browser.
-2.  **(Optional) Set Root Tag:** If you want your entire prompt enclosed in a single parent tag, enter its name in the "Root Tag Name" field (defaults to `prompt_structure`). You can leave this blank.
-3.  **Add Prompt Elements:**
-    *   Click on a tag from the "Recommended Tags" sidebar (e.g., `<instructions>`). This will add a new element group with the tag name pre-filled.
-    *   Or, click the "Add Custom Element" button to add a blank element group.
-4.  **Define Elements:**
-    *   For each element group:
-        *   Enter a **Tag Name** (e.g., `context`, `document`, `user_query`). Use the datalist for suggestions.
-        *   Enter the **Content** for that tag in the textarea. You can use newlines and special characters. If you need to include pre-formatted XML or code snippets as content, simply paste them in; the CDATA section will protect them.
-5.  **Generate XML:** Click the "Generate Prompt XML" button.
-6.  **Review Output:** The generated XML will appear in the text area at the bottom.
-7.  **Copy or Download:**
-    *   Click "Copy XML" to copy it to your clipboard.
-    *   Click "Download XML" to save it as an `.xml` file.
+Open `http://127.0.0.1:4173`.
 
-## Example Workflow
+To expose the development server to other devices on your network:
 
-Let's say you want to create a prompt for Claude to summarize a document:
+```bash
+yarn dev --host=0.0.0.0 --port=4173
+```
 
-1.  **Root Tag:** You might leave this as `prompt_structure` or clear it.
-2.  **Add Elements:**
-    *   Click `<instructions>` from the sidebar.
-        *   **Content:** `Please summarize the following document. Focus on the key findings and recommendations. Keep the summary concise, under 200 words.`
-    *   Click `<document>` from the sidebar.
-        *   **Content:** `(Paste your lengthy document text here...)`
-3.  **Generate XML:** Click "Generate Prompt XML".
-4.  **Output:** You'll see something like:
+## Validate the project
 
-    ```xml
-    <prompt_structure>
-      <instructions>
-        <![CDATA[
-    Please summarize the following document. Focus on the key findings and recommendations. Keep the summary concise, under 200 words.
-        ]]>
-      </instructions>
-      <document>
-        <![CDATA[
-    (Paste your lengthy document text here...)
-        ]]>
-      </document>
-    </prompt_structure>
-    ```
+```bash
+yarn check
+```
 
-5.  Copy this XML and use it as your prompt for Claude.
+That command runs dependency-free static integrity checks and the Node test suite.
 
-## File Structure
+## Project structure
 
-*   `index.html`: The main HTML file containing the structure, styling (CSS within `<style>` tags), and JavaScript logic (within `<script>` tags).
+```text
+.
+├── index.html                 # Accessible application shell
+├── styles.css                # Responsive light/dark design system
+├── src/
+│   ├── app.js                # Browser state and interactions
+│   └── prompt-xml.js         # Pure XML generation and validation engine
+├── tests/
+│   └── prompt-xml.test.mjs   # Node test suite
+├── scripts/
+│   ├── check.mjs             # Static integrity and privacy checks
+│   └── dev.mjs               # Dependency-free local server
+└── .github/workflows/ci.yml  # Yarn-based CI
+```
 
-## Development
+## XML behavior
 
-This tool is a single HTML file. To modify it:
+Prompt XML Studio validates root and section tag names before producing output. Content can be emitted in either of two modes:
 
-1.  Open `index.html` in a text editor.
-2.  The HTML structure defines the layout.
-3.  CSS rules are within the `<style>` tags in the `<head>`.
-4.  All JavaScript functionality is within the `<script>` tags at the end of the `<body>`.
+- **CDATA:** best when prompt content contains code, angle brackets, or XML-like examples. Embedded `]]>` sequences are split safely.
+- **Escaped text:** converts `&`, `<`, and `>` to XML entities.
 
-## Contributions
+A root tag is optional. Clearing it produces an XML fragment containing the configured prompt sections.
 
-Feel free to fork this repository, make improvements, and suggest changes or open pull requests!
+## Keyboard shortcuts
+
+- `Cmd/Ctrl + Enter`: copy the current XML.
+- `Cmd/Ctrl + Shift + K`: add a new section.
+
+## Deployment
+
+The app is static and requires no build command. Serve the repository root from any static host. The existing custom domain can continue serving `index.html` directly.
 
 ## License
 
-This tool is open-source and available under the MIT License. See the `LICENSE` file for more details (though no separate LICENSE file is included in this single-file tool context, the intent is MIT).
+MIT © Carter LaSalle

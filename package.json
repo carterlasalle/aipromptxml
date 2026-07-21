@@ -1,0 +1,25 @@
+{
+  "name": "prompt-xml-studio",
+  "version": "2.0.0",
+  "private": true,
+  "description": "A private, local-first editor for building and validating structured XML prompts.",
+  "type": "module",
+  "packageManager": "yarn@4.9.2",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "start": "node scripts/dev.mjs",
+    "test": "node --test",
+    "check": "node scripts/check.mjs && yarn test"
+  },
+  "keywords": [
+    "prompt-engineering",
+    "xml",
+    "claude",
+    "llm",
+    "local-first"
+  ],
+  "license": "MIT"
+}

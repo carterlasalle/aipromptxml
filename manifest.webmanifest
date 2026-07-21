@@ -1,0 +1,17 @@
+{
+  "name": "Prompt XML Studio",
+  "short_name": "Prompt XML",
+  "description": "Build and validate structured XML prompts locally in your browser.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#090b11",
+  "theme_color": "#5d50f6",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

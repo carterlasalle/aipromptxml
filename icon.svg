@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">Prompt XML Studio icon</title>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8c82ff"/>
+      <stop offset="1" stop-color="#4a3de2"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="30" fill="#0c1020"/>
+  <path d="M46 38 22 64l24 26M82 38l24 26-24 26M74 27 54 101" fill="none" stroke="url(#g)" stroke-linecap="round" stroke-linejoin="round" stroke-width="11"/>
+</svg>
