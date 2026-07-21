@@ -1,0 +1,39 @@
+name: Trace live host
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/host-diagnostics.yml
+
+permissions:
+  contents: read
+
+jobs:
+  trace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Resolve DNS and inspect the live response
+        env:
+          SITE_URL: https://xmlprompt.carterlasalle.com
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import urllib.request
+
+          host = "xmlprompt.carterlasalle.com"
+          for record_type in ("CNAME", "A", "AAAA"):
+              url = f"https://dns.google/resolve?name={host}&type={record_type}"
+              with urllib.request.urlopen(url, timeout=20) as response:
+                  payload = json.load(response)
+              print(f"=== {record_type} ===")
+              for answer in payload.get("Answer", []):
+                  print(answer.get("data"))
+          PY
+          echo "=== RESPONSE HEADERS ==="
+          curl --fail --silent --show-error --location --head "$SITE_URL"
+          echo "=== PAGE MARKERS ==="
+          curl --fail --silent --show-error --location "$SITE_URL" \
+            | grep -E -m 5 '<title>|Prompt XML Studio|Claude Prompt XML Helper' || true
